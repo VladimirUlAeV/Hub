@@ -1,0 +1,15 @@
+/bin/
+*.exe
+dist/
+
+.env
+.env.local
+config.local.yaml
+
+node_modules/ 
+vendor/
+
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
