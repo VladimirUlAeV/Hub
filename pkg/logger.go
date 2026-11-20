@@ -5,13 +5,13 @@ import (
 	"os"
 )
 
-func NewLogger(mode int, file *os.File) *slog.Logger{
+func NewLogger(mode int, file *os.File) *slog.Logger {
 	setingsHandler := slog.HandlerOptions{}
-	switch mode{
+	switch mode {
 	case 0:
 		setingsHandler.Level = slog.LevelInfo
 		setingsHandler.AddSource = false
-	
+
 	case 1:
 		setingsHandler.Level = slog.LevelDebug
 		setingsHandler.AddSource = true
@@ -21,10 +21,18 @@ func NewLogger(mode int, file *os.File) *slog.Logger{
 	return slog.New(handler)
 }
 
-func CreateNewLogFile() *os.File{
-	fileRoute := "bin/app.log"
-	file, err := os.OpenFile(fileRoute, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
-	if err != nil{
+func CreateNewLogFile() *os.File {
+	fileRoute := "app.log"
+
+	if _, err := os.Stat(fileRoute); err == nil {
+		file, err := os.OpenFile(fileRoute, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
+		if err != nil {
+			panic(err)
+		}
+		return file
+	}
+	file, err := os.Create(fileRoute)
+	if err != nil {
 		panic(err)
 	}
 	return file
