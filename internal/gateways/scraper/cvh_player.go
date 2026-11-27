@@ -60,40 +60,43 @@ func CvhPlayerEpisodesParse(c *http.Client, url string, refer string, ctx contex
 	
 	var allSeason []entities.Season
 	var actualSeason entities.Season
-	countSeasons := 0
+	countSeasons := -1
 	for _, item := range episodesData.Items {
 		if item.Season != countSeasons{
 			countSeasons = item.Season 
+			found := false
 			for _, season := range allSeason{
 				if season.Number == item.Season{
 					actualSeason = season
-				}else{
-					actualSeason = entities.NewSeason(item.Season, make(map[string]entities.VoiceStudio))
-					allSeason = append(allSeason, actualSeason)
-					continue
+					found = true 
+					break
 				}
 			}
+			if !found{
+				actualSeason = entities.NewSeason(item.Season, make(map[string]entities.VoiceStudio))
+				allSeason = append(allSeason, actualSeason)
+			}
+		
 			
 		}
-		var voice string
-		if item.VoiceStudio == ""{
+		voice := item.VoiceStudio
+		if voice == ""{
 			voice = item.VoiceType
-		}else{
-			voice = item.VoiceStudio
 		}
 
-		voiceStudio, ok := actualSeason.VoiceType[voice]; 
+		voiceStudio, ok := actualSeason.VoiceType[voice]
 		if !ok {
-			actualSeason.VoiceType[voice] = entities.NewVoiceStudio(make(map[string]entities.Player))
+			voiceStudio = entities.NewVoiceStudio(make(map[string]entities.Player))
+			actualSeason.VoiceType[voice] = voiceStudio
 		}
 
 		player, ok := voiceStudio.Player["CVH"]
 		if !ok{
-			voiceStudio.Player["CVH"] = entities.NewPlayer(2, make(map[int]string))
+			player = entities.NewPlayer(2, make(map[int]string))
+			voiceStudio.Player["CVH"] = player
 		}
 		
-		_, ok = player.Episodes[item.Episod]
-		if !ok{
+		if _, ok = player.Episodes[item.Episod]; !ok{
 			player.Episodes[item.Episod] = item.VkId
 		}
 	}
